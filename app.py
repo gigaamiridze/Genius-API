@@ -51,7 +51,7 @@ def get_all_artist():
     return jsonify(artists), 200
 
 @app.route("/artist/<int:artist_id>", methods=["GET"])
-def get_by_id(artist_id):
+def get_artist_by_id(artist_id):
     conn = db_connection()
     cur = conn.cursor()
     cur.execute("SELECT * FROM artists WHERE ID = ?", (artist_id,))
@@ -119,6 +119,19 @@ def get_all_song():
         for row in cursor.fetchall()
     ]
     return jsonify(songs), 200
+
+@app.route("/song/<int:song_id>", methods=["GET"])
+def get_song_by_id(song_id):
+    conn = db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM songs WHERE ID = ?", (song_id,))
+    row = cur.fetchone()
+    if row is not None:
+        song = [
+            dict(ID=row[0], album=row[1], song_name=row[2], song_style=row[3], BPM=row[4], upload_date=row[5], artist_id=row[6])
+        ]
+        return jsonify(song), 200
+    return {"msg": f"Song with ID {song_id} could not be found"}, 404
 
 if __name__ == "__main__":
     create_tables()
