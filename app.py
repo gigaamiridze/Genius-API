@@ -50,6 +50,19 @@ def get_all():
     ]
     return jsonify(artists), 200
 
+@app.route("/artist/<int:artist_id>")
+def get_by_id(artist_id):
+    conn = db_connection()
+    cur = conn.cursor()
+    cursor = cur.execute("SELECT * FROM artists WHERE ID = ?", (artist_id,))
+    artist = [
+        dict(ID=row[0], name=row[1], surname=row[2], age=row[3], country=row[4])
+        for row in cursor.fetchall()
+    ]
+    if artist is not None:
+        return jsonify(artist), 200
+    return {"msg" : f"Artist with ID {artist_id} could not be found"}, 404
+
 if __name__ == "__main__":
     create_tables()
     app.run(port=7777, debug=True)
