@@ -40,7 +40,7 @@ app = Flask(__name__)
 
 # Artist's CRUD
 @app.route("/artists", methods=["GET"])
-def get_all():
+def get_all_artist():
     conn = db_connection()
     cur = conn.cursor()
     cursor = cur.execute("SELECT * FROM artists")
@@ -107,6 +107,18 @@ def put_delete_artist(artist_id):
         cur.execute("DELETE FROM artists WHERE ID = ?", (artist_id,))
         conn.commit()
         return {"msg": f"Artist with ID {artist_id} has been deleted"}, 200
+
+# Song's CRUD
+@app.route("/songs", methods=["GET"])
+def get_all_song():
+    conn = db_connection()
+    cur = conn.cursor()
+    cursor = cur.execute("SELECT * FROM songs")
+    songs = [
+        dict(ID=row[0], album=row[1], song_name=row[2], song_style=row[3], BPM=row[4], upload_date=row[5], artist_id=row[6])
+        for row in cursor.fetchall()
+    ]
+    return jsonify(songs), 200
 
 if __name__ == "__main__":
     create_tables()
