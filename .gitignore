@@ -1,5 +1,6 @@
 # Byte-compiled / optimized / DLL files
 .idea
+genius.sqlite
 __pycache__/
 *.py[cod]
 *$py.class
