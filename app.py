@@ -148,6 +148,15 @@ def create_song():
     conn.commit()
     return {"msg": f"Song with ID {cur.lastrowid} added successfully"}, 201
 
+@app.route("/song/<int:song_id>", methods=["PUT", "DELETE"])
+def put_delete_song(song_id):
+    conn = db_connection()
+    cur = conn.cursor()
+    if request.method == "DELETE":
+        cur.execute("DELETE FROM songs WHERE ID = ?", (song_id,))
+        conn.commit()
+        return {"msg": f"Song with ID {song_id} has been deleted"}, 200
+
 if __name__ == "__main__":
     create_tables()
     app.run(port=7777, debug=True)
