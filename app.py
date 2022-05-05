@@ -76,13 +76,37 @@ def create_artist():
     conn.commit()
     return {"msg": f"Artist with ID {cur.lastrowid} created successfully"}, 201
 
-@app.route("/artist/<int:artist_id>", methods=["DELETE"])
-def delete_artist(artist_id):
+@app.route("/artist/<int:artist_id>", methods=["PUT", "DELETE"])
+def put_delete_artist(artist_id):
     conn = db_connection()
     cur = conn.cursor()
-    cur.execute("DELETE FROM artists WHERE ID = ?", (artist_id,))
-    conn.commit()
-    return {"msg": f"Artist with ID {artist_id} has been deleted"}, 200
+
+    if request.method == "PUT":
+        cur.execute("SELECT * FROM artists WHERE ID = ?", (artist_id,))
+        artist = cur.fetchone()
+        if artist is not None:
+            artist_data = "UPDATE artists SET name = ?, surname = ?, age = ?, country = ? WHERE ID = ?"
+            name = request.args["name"]
+            surname = request.args["surname"]
+            age = request.args["age"]
+            country = request.args["country"]
+            cur.execute(artist_data, (name, surname, age, country, artist_id))
+            conn.commit()
+            return {"msg": f"Artist with ID {artist_id} updated successfully"}, 200
+        else:
+            artist_data = "INSERT INTO artists (name, surname, age, country) VALUES (?, ?, ?, ?)"
+            name = request.args.get("name")
+            surname = request.args.get("surname")
+            age = request.args.get("age")
+            country = request.args.get("country")
+            cur.execute(artist_data, (name, surname, age, country))
+            conn.commit()
+            return {"msg": f"Artist did not exist with this ID {cur.lastrowid} and was created"}, 201
+
+    if request.method == "DELETE":
+        cur.execute("DELETE FROM artists WHERE ID = ?", (artist_id,))
+        conn.commit()
+        return {"msg": f"Artist with ID {artist_id} has been deleted"}, 200
 
 if __name__ == "__main__":
     create_tables()
