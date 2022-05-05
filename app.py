@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 import sqlite3
 
 DATABASE_NAME = "genius.sqlite"
@@ -38,9 +38,17 @@ def create_tables():
 
 app = Flask(__name__)
 
-@app.route("/")
-def home():
-    return "Welcome..."
+# Artist's CRUD
+@app.route("/artists", methods=["GET"])
+def get_all():
+    conn = db_connection()
+    cur = conn.cursor()
+    cursor = cur.execute("SELECT * FROM artists")
+    artists = [
+        dict(ID=row[0], name=row[1], surname=row[2], age=row[3], country=row[4])
+        for row in cursor.fetchall()
+    ]
+    return jsonify(artists), 200
 
 if __name__ == "__main__":
     create_tables()
