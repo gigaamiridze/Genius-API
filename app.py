@@ -133,6 +133,21 @@ def get_song_by_id(song_id):
         return jsonify(song), 200
     return {"msg": f"Song with ID {song_id} could not be found"}, 404
 
+@app.route("/song", methods=["POST"])
+def create_song():
+    conn = db_connection()
+    cur = conn.cursor()
+    song_data = "INSERT INTO songs (album, song_name, song_style, BPM, upload_date, artist_id) VALUES (?, ?, ?, ?, ?, ?)"
+    album = request.args.get("album")
+    song_name = request.args.get("song_name")
+    song_style = request.args.get("song_style")
+    BPM = request.args.get("BPM")
+    upload_date = request.args.get("upload_date")
+    artist_id = request.args.get("artist_id")
+    cur.execute(song_data, (album, song_name, song_style, BPM, upload_date, artist_id))
+    conn.commit()
+    return {"msg": f"Song with ID {cur.lastrowid} added successfully"}, 201
+
 if __name__ == "__main__":
     create_tables()
     app.run(port=7777, debug=True)
