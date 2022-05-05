@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import sqlite3
 
 DATABASE_NAME = "genius.sqlite"
@@ -62,6 +62,19 @@ def get_by_id(artist_id):
     if artist is not None:
         return jsonify(artist), 200
     return {"msg" : f"Artist with ID {artist_id} could not be found"}, 404
+
+@app.route("/artist", methods=["POST"])
+def create_artist():
+    conn = db_connection()
+    cur = conn.cursor()
+    artist_data = "INSERT INTO artists (name, surname, age, country) VALUES (?, ?, ?, ?)"
+    name = request.args.get("name")
+    surname = request.args.get("surname")
+    age = request.args.get("age")
+    country = request.args.get("country")
+    cur.execute(artist_data, (name, surname, age, country))
+    conn.commit()
+    return {"msg" : f"Artist with ID {cur.lastrowid} created successfully"}, 201
 
 if __name__ == "__main__":
     create_tables()
