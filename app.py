@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, redirect
 import sqlite3
 
 DATABASE_NAME = "genius.sqlite"
@@ -37,6 +37,10 @@ def create_tables():
         cur.execute(table)
 
 app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return redirect("https://github.com/gigaamiridze/Genius-API")
 
 # Artist's CRUD
 @app.route("/artists", methods=["GET"])
