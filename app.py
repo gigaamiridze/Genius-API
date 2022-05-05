@@ -50,7 +50,7 @@ def get_all():
     ]
     return jsonify(artists), 200
 
-@app.route("/artist/<int:artist_id>")
+@app.route("/artist/<int:artist_id>", methods=["GET"])
 def get_by_id(artist_id):
     conn = db_connection()
     cur = conn.cursor()
@@ -61,7 +61,7 @@ def get_by_id(artist_id):
             dict(ID=row[0], name=row[1], surname=row[2], age=row[3], country=row[4])
         ]
         return jsonify(artist), 200
-    return {"msg" : f"Artist with ID {artist_id} could not be found"}, 404
+    return {"msg": f"Artist with ID {artist_id} could not be found"}, 404
 
 @app.route("/artist", methods=["POST"])
 def create_artist():
@@ -74,7 +74,15 @@ def create_artist():
     country = request.args.get("country")
     cur.execute(artist_data, (name, surname, age, country))
     conn.commit()
-    return {"msg" : f"Artist with ID {cur.lastrowid} created successfully"}, 201
+    return {"msg": f"Artist with ID {cur.lastrowid} created successfully"}, 201
+
+@app.route("/artist/<int:artist_id>", methods=["DELETE"])
+def delete_artist(artist_id):
+    conn = db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM artists WHERE ID = ?", (artist_id,))
+    conn.commit()
+    return {"msg": f"Artist with ID {artist_id} has been deleted"}, 200
 
 if __name__ == "__main__":
     create_tables()
