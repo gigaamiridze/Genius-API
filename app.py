@@ -98,14 +98,8 @@ def put_delete_artist(artist_id):
             conn.commit()
             return {"msg": f"Artist with ID {artist_id} updated successfully"}, 200
         else:
-            artist_data = "INSERT INTO artists (name, surname, age, country) VALUES (?, ?, ?, ?)"
-            name = request.args.get("name")
-            surname = request.args.get("surname")
-            age = request.args.get("age")
-            country = request.args.get("country")
-            cur.execute(artist_data, (name, surname, age, country))
-            conn.commit()
-            return {"msg": f"Artist did not exist with this ID {cur.lastrowid} and was created"}, 201
+            create_artist()
+            return {"msg": f"Artist did not exist with this ID {artist_id} and was created"}, 201
 
     if request.method == "DELETE":
         cur.execute("DELETE FROM artists WHERE ID = ?", (artist_id,))
@@ -176,17 +170,8 @@ def put_delete_song(song_id):
             conn.commit()
             return {"msg": f"Song with ID {song_id} updated successfully"}, 200
         else:
-            song_data = """INSERT INTO songs (album, song_name, song_style, BPM, upload_date, artist_id) 
-                            VALUES (?, ?, ?, ?, ?, ?)"""
-            album = request.args.get("album")
-            song_name = request.args.get("song_name")
-            song_style = request.args.get("song_style")
-            BPM = request.args.get("BPM")
-            upload_date = request.args.get("upload_date")
-            artist_id = request.args.get("artist_id")
-            cur.execute(song_data, (album, song_name, song_style, BPM, upload_date, artist_id))
-            conn.commit()
-            return {"msg": f"Song did not exist with this ID {cur.lastrowid} and was created"}, 201
+            create_song()
+            return {"msg": f"Song did not exist with this ID {song_id} and was created"}, 201
 
     if request.method == "DELETE":
         cur.execute("DELETE FROM songs WHERE ID = ?", (song_id,))
