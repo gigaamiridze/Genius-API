@@ -5,16 +5,19 @@ Genius API - მუსიკოსებს API-ს დახმარები�
 from flask import Flask, jsonify, request, redirect
 import sqlite3
 
-DATABASE_NAME = "genius.sqlite"
+app = Flask(__name__)
+
+database_name = "genius.sqlite"
 
 def db_connection():
     conn = None
     try:
-        conn = sqlite3.connect(DATABASE_NAME)
+        conn = sqlite3.connect(database_name)
     except Exception as error_message:
         print(error_message)
     return conn
 
+@app.before_first_request
 def create_tables():
     tables = [
         """CREATE TABLE IF NOT EXISTS artists (
@@ -39,8 +42,6 @@ def create_tables():
     cur = conn.cursor()
     for table in tables:
         cur.execute(table)
-
-app = Flask(__name__)
 
 @app.route("/")
 def home():
@@ -183,5 +184,4 @@ def put_delete_song(song_id):
         return {"msg": f"Song with ID {song_id} has been deleted"}, 200
 
 if __name__ == "__main__":
-    create_tables()
     app.run(port=7777, debug=True)
