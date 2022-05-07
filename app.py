@@ -119,7 +119,8 @@ def get_all_song():
     cur = conn.cursor()
     cursor = cur.execute("SELECT * FROM songs")
     songs = [
-        dict(ID=row[0], album=row[1], song_name=row[2], song_style=row[3], BPM=row[4], upload_date=row[5], artist_id=row[6])
+        dict(ID=row[0], album=row[1], song_name=row[2], song_style=row[3], BPM=row[4],
+             upload_date=row[5], artist_id=row[6])
         for row in cursor.fetchall()
     ]
     return jsonify(songs), 200
@@ -132,7 +133,8 @@ def get_song_by_id(song_id):
     row = cur.fetchone()
     if row is not None:
         song = [
-            dict(ID=row[0], album=row[1], song_name=row[2], song_style=row[3], BPM=row[4], upload_date=row[5], artist_id=row[6])
+            dict(ID=row[0], album=row[1], song_name=row[2], song_style=row[3], BPM=row[4],
+                 upload_date=row[5], artist_id=row[6])
         ]
         return jsonify(song), 200
     return {"msg": f"Song with ID {song_id} could not be found"}, 404
@@ -141,7 +143,8 @@ def get_song_by_id(song_id):
 def create_song():
     conn = db_connection()
     cur = conn.cursor()
-    song_data = "INSERT INTO songs (album, song_name, song_style, BPM, upload_date, artist_id) VALUES (?, ?, ?, ?, ?, ?)"
+    song_data = """INSERT INTO songs (album, song_name, song_style, BPM, upload_date, artist_id)
+                    VALUES (?, ?, ?, ?, ?, ?)"""
     album = request.args.get("album")
     song_name = request.args.get("song_name")
     song_style = request.args.get("song_style")
@@ -156,6 +159,35 @@ def create_song():
 def put_delete_song(song_id):
     conn = db_connection()
     cur = conn.cursor()
+
+    if request.method == "PUT":
+        cur.execute("SELECT * FROM songs WHERE ID = ?", (song_id,))
+        song = cur.fetchone()
+        if song is not None:
+            song_data = """UPDATE songs SET album = ?, song_name = ?, song_style = ?,
+                            BPM = ?, upload_date = ?, artist_id = ? WHERE ID = ?"""
+            album = request.args["album"]
+            song_name = request.args["song_name"]
+            song_style = request.args["song_style"]
+            BPM = request.args["BPM"]
+            upload_date = request.args["upload_date"]
+            artist_id = request.args["artist_id"]
+            cur.execute(song_data, (album, song_name, song_style, BPM, upload_date, artist_id, song_id))
+            conn.commit()
+            return {"msg": f"Song with ID {song_id} updated successfully"}, 200
+        else:
+            song_data = """INSERT INTO songs (album, song_name, song_style, BPM, upload_date, artist_id) 
+                            VALUES (?, ?, ?, ?, ?, ?)"""
+            album = request.args.get("album")
+            song_name = request.args.get("song_name")
+            song_style = request.args.get("song_style")
+            BPM = request.args.get("BPM")
+            upload_date = request.args.get("upload_date")
+            artist_id = request.args.get("artist_id")
+            cur.execute(song_data, (album, song_name, song_style, BPM, upload_date, artist_id))
+            conn.commit()
+            return {"msg": f"Song did not exist with this ID {cur.lastrowid} and was created"}, 201
+
     if request.method == "DELETE":
         cur.execute("DELETE FROM songs WHERE ID = ?", (song_id,))
         conn.commit()
