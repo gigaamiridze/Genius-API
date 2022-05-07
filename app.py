@@ -1,3 +1,7 @@
+"""
+Genius API - მუსიკოსებს API-ს დახმარებით ეძლევათ საშუალება, რომ ატვირთონ
+             საკუთარი ნამუშევრები მუსიკისთვის დამახასიათებელი მონაცემებით.
+"""
 from flask import Flask, jsonify, request, redirect
 import sqlite3
 
